@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:orientation="vertical"
+    tools:context=".HomeActivity">
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/material_search_bar"
+        app:mt_hint="Entrez l'email"
+        app:mt_maxSuggestionsCount="50"
+        style="@style/MaterialSearchBarDark"
+
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#251821"
+        android:layout_marginBottom="20dp"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/view"
+        android:orientation="horizontal">
+
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_Circle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+</LinearLayout>

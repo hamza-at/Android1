@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Profile"
+    android:id="@+id/root">
+
+    <RelativeLayout
+        android:id="@+id/bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#251821"
+        android:paddingBottom="20dp">
+
+        <RelativeLayout
+            android:id="@+id/imgUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/circle_border"
+            app:cardCornerRadius="25dp"
+
+            >
+
+            <ImageView
+                android:id="@+id/profile_ig"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginBottom="9dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/circle"
+
+                android:padding="3dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ike"
+                app:cardCornerRadius="25dp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imgUser"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15sp"
+            android:fontFamily="sans-serif-light"
+            android:text="User"
+            android:textColor="@color/white"
+            android:textSize="32sp" />
+
+
+        <TextView
+            android:id="@+id/tv_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_name"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="sans-serif"
+            android:text="email"
+            android:textAllCaps="true"
+            android:textColor="#FF7E38"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/setting"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="15dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_settings" />
+
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/bg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description/quotes"
+                    android:textColor="@color/headings"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:text="disponible"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/grey" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+
+
+                <Button
+                    android:id="@+id/pass"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Change password"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+
+
+                <Button
+                    android:id="@+id/traced"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Remove From My Circle"
+                    android:textSize="18sp"
+                    android:backgroundTint="#DA0C0C"
+                    android:textColor="#FFFFFF"
+                    />
+
+
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+
+
+                <Button
+                    android:id="@+id/out"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Sign out"
+                    android:textSize="18sp"
+                    android:backgroundTint="#DA0C0C"
+                    android:textColor="#FFFFFF"
+                    />
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

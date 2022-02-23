@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "400557351732",
+    "firebase_url": "https://geosafe-7ae63-default-rtdb.firebaseio.com",
+    "project_id": "geosafe-7ae63",
+    "storage_bucket": "geosafe-7ae63.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:400557351732:android:bded6a573a13dcff69fb61",
+        "android_client_info": {
+          "package_name": "com.example.geosafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "400557351732-5urrhrns180ite0kvsthj0574v0arcka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.geosafe",
+            "certificate_hash": "eb4dd0303c5e61dc7f07dd4fe15529c6b3498e27"
+          }
+        },
+        {
+          "client_id": "400557351732-cgj7eg4klhu88e94seku1c3v0c6eb2ms.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNVSAjDGIsWBR9oDyV2h01NAQ6N2C_8AE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "400557351732-cgj7eg4klhu88e94seku1c3v0c6eb2ms.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

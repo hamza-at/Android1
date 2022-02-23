@@ -12,10 +12,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.geosafe.model.User;
-import com.example.geosafe.utils.Commun;
+import com.example.geosafe.utils.Tools;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
@@ -35,13 +36,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceIdReceiver;
 import com.google.firebase.iid.internal.FirebaseInstanceIdInternal;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-  //////
+//////
 
 ///
 import java.util.Arrays;
@@ -52,28 +54,41 @@ import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "";
-    DatabaseReference userInfo;
-     private static final int Requete = 1337;
+    public DatabaseReference userInfo;
     List<AuthUI.IdpConfig> providers;
+    TextView txt;
+    FirebaseAuth auth;
+
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
                 @Override
                 public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
                     onSignInResult(result);
-                    setupUI();
                 }
             }
     );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() != null) {
+            Log.wtf("loggeduser",""+auth.getCurrentUser());
+            String value = auth.getCurrentUser().getEmail();
+            Intent i = new Intent(MainActivity.this, HomeActivity.class);
+            i.putExtra("email",value);
+            startActivity(i);
+            finish();
+        }
         setContentView(R.layout.activity_main);
+
 
         Paper.init(this);
         //initialiser Firebase
-        userInfo = FirebaseDatabase.getInstance("https://www.geosafe-7ae63.firebase.io")
-                .getReference(Commun.USER_INFORMATION);
+        userInfo = FirebaseDatabase.getInstance()
+                .getReference(Tools.USER_INFORMATION);
 
         //initialiser providers
         providers = Arrays.asList(
@@ -81,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 new AuthUI.IdpConfig.GoogleBuilder().build()
         );
 //dexter// request permission de localisation
-/*     Dexter.withContext(this)
+/*     Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
                     @Override
@@ -115,12 +130,13 @@ public class MainActivity extends AppCompatActivity {
                                 // Precise location access granted.
                                 Intent signInIntent = AuthUI.getInstance()
                                         .createSignInIntentBuilder()
+                                        .setIsSmartLockEnabled(false)
                                         .setAvailableProviders(providers)
                                         .build();
                                 signInLauncher.launch(signInIntent);
                             } else {
                                 // No location access granted.
-                                Toast.makeText(MainActivity.this,"you must accept permission",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "you must accept permission", Toast.LENGTH_SHORT).show();
 
                             }
                         }
@@ -131,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 // Before you perform the actual permission request, check whether your app
 // already has the permissions, and whether your app needs to show a permission
 // rationale dialog. For more details, see Request permissions.
-        locationPermissionRequest.launch(new String[] {
+        locationPermissionRequest.launch(new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
         });
@@ -139,47 +155,63 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void setupUI() {
-        startActivity(new Intent(MainActivity.this,HomeActivity.class));
+    private void LaunchAct(FirebaseUser firebaseUser) {
+        String value = firebaseUser.getEmail();
+        Intent i = new Intent(MainActivity.this, HomeActivity.class);
+        i.putExtra("email",value);
+        startActivity(i);
         finish();
-        Log.d(TAG,"fucking shitt");
+
     }
+
     // [START auth_fui_result]
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        IdpResponse response = result.getIdpResponse();
-        Log.d(TAG,"fucking shitt222222");
+        Log.d(TAG, "dkhel onSignInResult");
         if (result.getResultCode() == RESULT_OK) {
-            // Successfully signed in
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            //check if user exists
-            userInfo.orderByKey()
-                    .equalTo(Objects.requireNonNull(firebaseUser).getUid())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.getValue() == null) //user doesnt exist
-                            {
-                                Commun.loggedUser = new User(firebaseUser.getUid(), firebaseUser.getEmail());
-                                //add to BD
-                                userInfo.child(Commun.loggedUser.getUid()).setValue(Commun.loggedUser);
+            Log.wtf("boucle if", "onsignin");
+            txt=(TextView)findViewById(R.id.txt);
+            txt.setText(R.string.Bienvenu);
+            txt.setText(R.string.Redirection);
 
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            Log.wtf("firebaseuser",""+firebaseUser);
+            Log.wtf("userinfofromrealtime",""+userInfo);
+            //check if user exists
+            assert firebaseUser != null;
+            userInfo.orderByKey().equalTo(firebaseUser.getUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Log.wtf("snapshot", "" + snapshot);
+
+                            if (snapshot.getValue() == null) //user doesnt exist
+                            {  if (!snapshot.child(firebaseUser.getUid()).exists()) //If key uid is not exist
+                              {
+                                Log.wtf("onDataChange", "jjjjj");
+                                Tools.loggedUser = new User(firebaseUser.getUid(), firebaseUser.getEmail());
+                                //add to BD
+                                userInfo.child(Tools.loggedUser.getUid()).setValue(Tools.loggedUser);
+                              }
                             } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
+                                // Sign in failed. If response is null the user canceled the
+                                // sign-in flow using the back button. Otherwise check
+                                // response.getError().getErrorCode() and handle the error.
+                                // ...
                                 //user available
-                                Commun.loggedUser = snapshot.child(firebaseUser.getUid()).getValue(User.class);
+                                Tools.loggedUser = snapshot.child(firebaseUser.getUid()).getValue(User.class);
                             }
-                            //save uid to storage to update location from background
-                            Paper.book().write(Commun.USER_UID_SAVE_KEY,Commun.loggedUser.getUid());
-                            updateToken(firebaseUser);
-                            setupUI();
+
+
+                    Paper.book().write(Tools.SAVED_USER_UID,Tools.loggedUser.getUid());
+
+                       updateToken(firebaseUser);
+                          Log.d(TAG, "wsl launcher dyal Home activity");
+                            LaunchAct(firebaseUser);
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-
+                            Log.wtf("Error---------------------", "" + error);
                         }
                     });
         }
@@ -236,28 +268,27 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
 
-
     private void updateToken(FirebaseUser firebaseUser) {
-        Log.d(TAG,"fucking shitt222222");
+        Log.d(TAG, "fucking shitt222222");
+        final DatabaseReference tokens = FirebaseDatabase.getInstance()
+                .getReference(Tools.TOKENS);
 
-        DatabaseReference tokens = FirebaseDatabase.getInstance("https://www.geosafe-7ae63.firebase.io").getReference(Commun.TOKENS);
-        //getting token
+        //Get Token
         FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Toast.makeText(MainActivity.this,"Fetching FCM registration token failed",Toast.LENGTH_SHORT).show();
-                        return;
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        tokens.child(firebaseUser.getUid())
+                                .setValue(task.getResult());    //->Error
                     }
-
-                    // Get new FCM registration token
-                    String token = task.getResult();
-
-                    // Log and toast
-                    String msg = getString(R.string.msg_token_fmt, token);
-                    Log.d(TAG, msg);
-                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                });
-                }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 }
+
 

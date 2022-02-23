@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:orientation="vertical"
+    tools:context=".AllUsersActivity">
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/material_search_bar"
+        app:mt_roundedSearchBarEnabled="true"
+        app:mt_maxSuggestionsCount="50"
+
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"
+        />
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/view"
+    >
+
+</RelativeLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_all_users"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+</LinearLayout>
