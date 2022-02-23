@@ -12,7 +12,7 @@ This project is a simple mobile application build to track the people you care a
 Project is created with:
 * Java
 * Firebase (Storage, Realtime, Authentification, Cloud messaging)
-* Google APIs
+* Google APIs (+Direction API)
 * Rest API
 * Push Notifications
 
