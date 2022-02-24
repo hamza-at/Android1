@@ -5,14 +5,9 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="msg_token_fmt" formatted="true">%s</string>
     <string name="nav_open">Open navigation drawer</string>
     <string name="nav_close">Close navigation drawer</string>
     <string name="my_email_here">My email here</string>
-    <string name="IFCM_key">AAAAXUMUIzQ:APA91bFaHqlqYOknrZVn6fxXVoVzD9fQ6gOawEh3_bkAnuBpUpYCILQCR7HhhhYN12O_gWI-mWZqSInmPU052zmGI3_LjlgejxDRFic91YnKBQ_VnLpb5W_0SWGIQeDkFoKJjWo4WTOi</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="Redirection">redirection vers la page principale</string>
     <string name="Bienvenu">Bienvenu!</string>

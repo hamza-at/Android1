@@ -42,32 +42,17 @@ public class SettingActivity extends AppCompatActivity {
         Circle=(Button)findViewById(R.id.Circle);
         Account=(Button)findViewById(R.id.Account);
 
-        Circle.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION);
-                                          ref.child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                              @Override
-                                              public void onSuccess(Void unused) {
-                                                  startActivity(new Intent(SettingActivity.this, HomeActivity.class));
-                                                finish();
-                                              }
-                                          });
-                                          //a voir
-                                                  //startActivity(new Intent(SettingActivity.this, HomeActivity.class));
-
-                                        //  );
-                                      }
-                                  }
-        );
-        Account.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          deleteAccount();
-
-                                      }
-                                  }
-        );
+        Circle.setOnClickListener(v -> {
+            final DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION);
+            ref.child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    startActivity(new Intent(SettingActivity.this, HomeActivity.class));
+                  finish();
+                }
+            });
+        });
+        Account.setOnClickListener(v -> deleteAccount());
 
 
     }
@@ -84,22 +69,23 @@ public class SettingActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void deleteAccount() {
         Log.d(TAG, " deleteAccount");
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         DatabaseReference request=FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid());
 
+        assert currentUser != null;
         currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG,"OK! Works fine!");
                     request.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
 
-                            Toast.makeText(SettingActivity.this, "Removed user from RT", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SettingActivity.this, "Removed user from RealTime", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -110,7 +96,7 @@ public class SettingActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.e(TAG,"Ocurrio un error durante la eliminación del usuario", e);
+                Log.e(TAG,"Erreur", e);
             }
         });
     }

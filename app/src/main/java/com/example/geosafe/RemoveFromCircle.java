@@ -1,16 +1,6 @@
 package com.example.geosafe;
 
-import static android.graphics.Color.RED;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.DialogInterface;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,6 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.geosafe.Interface.IRecycleItemClickListener;
 import com.example.geosafe.model.User;
 import com.example.geosafe.utils.Tools;
@@ -26,7 +23,6 @@ import com.example.geosafe.viewHolder.UserViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -101,9 +97,9 @@ public class RemoveFromCircle extends AppCompatActivity {
         });
         recycler_all_user = (RecyclerView) findViewById(R.id.recycler_circle_remove);
         recycler_all_user.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recycler_all_user.setLayoutManager(layoutManager);
-        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, ((LinearLayoutManager) layoutManager).getOrientation()));
+        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
 
         loadUserList();
 
@@ -127,15 +123,8 @@ public class RemoveFromCircle extends AppCompatActivity {
                 holder.txt_user_name.setText(new StringBuilder(name));
                 holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
 
-                //Event
-                holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                    @Override
-                    public void onItemClickListener(View view, int position) {
-                        showDialogRequest(model);
 
-                    }
-
-                });
+                holder.setiRecycleItemClickListener((view, position1) -> showDialogRequest(model));
             }
 
             @NonNull
@@ -147,7 +136,6 @@ public class RemoveFromCircle extends AppCompatActivity {
                 return new UserViewHolder(itemView);
             }
         };
-        // this ligne is important to avoid blank in load user
         searchAdapter.startListening();
         recycler_all_user.setAdapter(searchAdapter);
     }
@@ -155,11 +143,9 @@ public class RemoveFromCircle extends AppCompatActivity {
     private void loadUserList() {
         Query query = FirebaseDatabase.getInstance()
                 .getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST);
-        // It is a class provide by the FirebaseUI to make query in the database to fetch appropriate data
         FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
-        //passer l'objet au adapter
         adapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User model) {
@@ -168,15 +154,7 @@ public class RemoveFromCircle extends AppCompatActivity {
                 holder.txt_user_name.setText(new StringBuilder(name));
                 holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
 
-                //Event
-                holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                    @Override
-                    public void onItemClickListener(View view, int position) {
-
-                            showDialogRequest(model);
-                        }
-
-                });
+                holder.setiRecycleItemClickListener((view, position1) -> showDialogRequest(model));
             }
 
             @NonNull
@@ -187,7 +165,6 @@ public class RemoveFromCircle extends AppCompatActivity {
                 return new UserViewHolder(itemView);
             }
         };
-        // this ligne is important to avoid blank in load user
         adapter.startListening();
         recycler_all_user.setAdapter(adapter);
 
@@ -198,50 +175,15 @@ public class RemoveFromCircle extends AppCompatActivity {
         alertDialog.setTitle("Remove Friend");
         alertDialog.setMessage("Do you want to remove this user from your circle " + model.getEmail());
         alertDialog.setIcon(R.drawable.ic_account);
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // on lajoute a la liste des acceptes
-               /* DatabaseReference acceptlist = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION)
-                        .child(Tools.loggedUsed.getUid())
-                        .child(Tools.ACCEPTLIST);
-                acceptlist.orderByKey().equalTo(model.getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.getValue() == null)
-                                    sendCircleRequest(model);
-                                else
-                                    Toast.makeText(AllUsersActivity.this, model.getEmail() + " is on your circleSafe", Toast.LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });*/
-                RemoveCircle(model);
-            }
-        });
+        alertDialog.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        alertDialog.setPositiveButton("Confirm", (dialog, which) -> RemoveCircle(model));
         alertDialog.show();
     }
 
     private void RemoveCircle(User model) {
         DatabaseReference request = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST);
 
-        request.child(model.getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-
-                Toast.makeText(RemoveFromCircle.this, "Remove", Toast.LENGTH_SHORT).show();
-            }
-        });
+        request.child(model.getUid()).removeValue().addOnSuccessListener(unused -> Toast.makeText(RemoveFromCircle.this, "Remove", Toast.LENGTH_SHORT).show());
     }
 }
 

@@ -1,14 +1,12 @@
 package com.example.geosafe;
 
 
-import static android.graphics.Color.RED;
-
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,44 +16,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.google.android.gms.location.LocationRequest;
-
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.geosafe.Interface.IFirebaseLoadDone;
 import com.example.geosafe.Interface.IRecycleItemClickListener;
-import com.example.geosafe.model.Request;
 import com.example.geosafe.model.User;
-import com.example.geosafe.request.IFCMService;
 import com.example.geosafe.utils.Tools;
 import com.example.geosafe.viewHolder.UserViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.view.GravityCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.geosafe.databinding.ActivityHomeBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -68,6 +54,7 @@ import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -75,114 +62,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, IFirebaseLoadDone {
 
-    private static final String TAG = "";
 
-   /* @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-        drawer.closeDrawer(GravityCompat.START);
-        }else{
-            super.onBackPressed();
-        }
-
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        // Objects.requireNonNull(getSupportActionBar()).hide();//Ocultar ActivityBar anterior
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        setSupportActionBar(toolbar);
-        binding.appBarHome.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setOpenableLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_home);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-    }
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null)
-            fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show());
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.nav_open, R.string.nav_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        Log.d(TAG,"bla bla éé");
-      navigationView.setNavigationItemSelectedListener( new NavigationView.OnNavigationItemSelectedListener() {
-
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                Log.d(TAG,"iddddddd "+id);
-                if(id == R.id.add){
-                    Log.d(TAG,"bla bla");
-                }else if(id == R.id.find){
-                    startActivity(new Intent(HomeActivity.this,AllUsersActivity.class));
-
-                }else if(id == R.id.sign_out){
-
-                }
-
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
-                return true;
-            }
-        });
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                // Handle menu item selected
-                int id= menuItem.getItemId();
-                       if(id == R.id.add){
-                           Log.d(TAG,"clicked-------------");
-
-                       }
-                return true;
-            }});
-    }
-
-   @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_home);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.add){
-Log.d(TAG,"bla bla");
-        }else if(id == R.id.find){
-            startActivity(new Intent(HomeActivity.this,AllUsersActivity.class));
-
-        }else if(id == R.id.sign_out){
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-}*/
    FirebaseRecyclerAdapter<User, UserViewHolder> adapter, searchAdapter;
     RecyclerView recycler_Circle;
     MaterialSearchBar searchBar;
@@ -206,7 +86,7 @@ Log.d(TAG,"bla bla");
             value = extras.getString("email");
             Log.wtf("tag",value);
         }else{
-            value= FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            value= Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
         }
         this.configureToolBar();
 
@@ -214,36 +94,25 @@ Log.d(TAG,"bla bla");
 
         this.configureNavigationView(value);
 
-        //pour le Chat
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(HomeActivity.this, "ChatActivity Comming soon", Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(HomeActivity.this,ChatActivity.class);
-                startActivity(i );
+        fab.setOnClickListener(view -> {
+            Toast.makeText(HomeActivity.this, "Displaying your chat history", Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(HomeActivity.this,ChatActivity.class);
+            startActivity(i );
 
-            }
         });
-        //pour afficher le maps
+
         FloatingActionButton maps = (FloatingActionButton) findViewById(R.id.map);
-        maps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(HomeActivity.this, MapsActivity.class));
+        maps.setOnClickListener(view -> {
+            Toast.makeText(HomeActivity.this, "Displaying the maps with your location", Toast.LENGTH_SHORT).show();
 
-            }
+            startActivity(new Intent(HomeActivity.this, MapsActivity.class));
+
         });
-        //pour afficher la donation
+
         FloatingActionButton don = (FloatingActionButton) findViewById(R.id.donate);
-        don.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //startActivity(new Intent(HomeActivity.this, MapsActivity.class));
-                Toast.makeText(HomeActivity.this, "I support ur safety, Donate to support me back!", Toast.LENGTH_SHORT).show();
+        don.setOnClickListener(view -> Toast.makeText(HomeActivity.this, "I support ur safety, Donate to support me back! (Coming soon)", Toast.LENGTH_SHORT).show());
 
-            }
-        });
         searchBar = (MaterialSearchBar) findViewById(R.id.material_search_bar);
         searchBar.setCardViewElevation(10);
         searchBar.addTextChangeListener(new TextWatcher() {
@@ -292,16 +161,17 @@ Log.d(TAG,"bla bla");
         });
         recycler_Circle = (RecyclerView) findViewById(R.id.recycler_Circle);
         recycler_Circle.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recycler_Circle.setLayoutManager(layoutManager);
         recycler_Circle.setItemAnimator(null);
-        recycler_Circle.addItemDecoration(new DividerItemDecoration(this, ((LinearLayoutManager) layoutManager).getOrientation()));
+        recycler_Circle.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
         
         //mettre à jour la localisation
         UpdateLocalisation();
         firebaseLoadDone=this;
         if(Tools.loggedUser==null){ user= FirebaseAuth.getInstance().getCurrentUser();
-        Tools.loggedUser=new User(user.getUid(), user.getEmail());}
+            assert user != null;
+            Tools.loggedUser=new User(user.getUid(), user.getEmail());}
 
         loadCercleList();
 
@@ -339,7 +209,7 @@ Log.d(TAG,"bla bla");
             searchAdapter.startListening();
         }
     }
-//les suggestions
+
     private void loadSearch() {
         List<String> lstUserEmail = new ArrayList<>();
         DatabaseReference userList = FirebaseDatabase.getInstance()
@@ -349,6 +219,7 @@ Log.d(TAG,"bla bla");
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot userSnapShot : snapshot.getChildren()) {
                     User user = userSnapShot.getValue(User.class);
+                    assert user != null;
                     if(user.getEmail() !=null) {
                         lstUserEmail.add(user.getEmail());
                     }
@@ -373,11 +244,9 @@ Log.d(TAG,"bla bla");
 
     private void loadCercleList() {
             Query query = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST);
-            // It is a class provide by the FirebaseUI to make query in the database to fetch appropriate data
             FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
                     .setQuery(query, User.class)
                     .build();
-            //passer l'objet au adapter
             adapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {
                 @Override
                 protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User model) {
@@ -386,34 +255,20 @@ Log.d(TAG,"bla bla");
                       holder.txt_user_name.setText(new StringBuilder(name));
                       holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
 
-                    //Event
-                    holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                        @Override
-                        public void onItemClickListener(View view, int position) {
-                            Tools.UserTraced=model;
-                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(HomeActivity.this);
-                            alertDialog.setTitle("Choissisez une option");
-                            alertDialog.setMessage("Do you want to Trace or Chat with this user " + model.getEmail());
-                            alertDialog.setIcon(R.drawable.ic_account);
-                            alertDialog.setNegativeButton("Trace", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startActivity(new Intent(HomeActivity.this,MapsActivity.class));
-
-                                }
-                            });
-                            alertDialog.setPositiveButton("Chat", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent i = new Intent(HomeActivity.this,MessageActivity.class);
-                                    i.putExtra("userid",model.getUid());
-                                    startActivity(i );
-                                }
-                            });
-                            alertDialog.show();
-                                                        }
-
-                    });
+                    holder.setiRecycleItemClickListener((view, position1) -> {
+                        Tools.UserTraced=model;
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(HomeActivity.this);
+                        alertDialog.setTitle("Choissisez une option");
+                        alertDialog.setMessage("Do you want to Trace or Chat with this user " + model.getEmail());
+                        alertDialog.setIcon(R.drawable.ic_account);
+                        alertDialog.setNegativeButton("Trace", (dialog, which) -> startActivity(new Intent(HomeActivity.this,MapsActivity.class)));
+                        alertDialog.setPositiveButton("Chat", (dialog, which) -> {
+                            Intent i = new Intent(HomeActivity.this,MessageActivity.class);
+                            i.putExtra("userid",model.getUid());
+                            startActivity(i);
+                        });
+                        alertDialog.show();
+                                                    });
                 }
 
                 @NonNull
@@ -424,16 +279,12 @@ Log.d(TAG,"bla bla");
                     return new UserViewHolder(itemView);
                 }
             };
-            // this ligne is important to avoid blank in load user
             adapter.startListening();
             recycler_Circle.setAdapter(adapter);
-
-
-
     }
 
     private void UpdateLocalisation() {
-        //constructeur RequestLocalisation
+    Log.wtf("Updating localisation realtime","In progress");
         requestlocalisation= com.google.android.gms.location.LocationRequest.create();
         requestlocalisation.setSmallestDisplacement(10f);
         requestlocalisation.setFastestInterval(3000);
@@ -441,14 +292,15 @@ Log.d(TAG,"bla bla");
         requestlocalisation.setPriority(com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         fusedlocationprovider = LocationServices.getFusedLocationProviderClient(this);
-       //verifier les permissions et demande ce qui est pas disponible dans le package manager de cette application celui qui gere tout les information de ce package. et puis appcompact.requestpermissions override automatiquement le onpermissionresult()
+        //verify permissions and ask user to allow them if necessary
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedlocationprovider.requestLocationUpdates(requestlocalisation, PendingIntent());
 
     }
-// creer un broadcast receiver pour modifier la localisation depuis le background
+    //broadcast receiver to update location from background
+    @SuppressLint("UnspecifiedImmutableFlag")
     private PendingIntent PendingIntent() {
         Intent intent=new Intent(HomeActivity.this, com.example.geosafe.IFCService.LocalisationReceiver.class);
         intent.setAction(com.example.geosafe.IFCService.LocalisationReceiver.ACTION);
@@ -471,19 +323,15 @@ Log.d(TAG,"bla bla");
             protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull final User model) {
                 holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
 
-                holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                    @Override
-                    public void onItemClickListener(View view, int position) {
-                        //s tracking
-                        Tools.UserTraced=model;
-                        startActivity(new Intent(HomeActivity.this,MapsActivity.class));
-                    }
+                holder.setiRecycleItemClickListener((view, position1) -> {
+                    //displaying realtime location of user model
+                    Tools.UserTraced=model;
+                    startActivity(new Intent(HomeActivity.this,MapsActivity.class));
                 });
             }
             @NonNull
             @Override
             public UserViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-                //pour passer declarer a la classe le layout ou les donnees will be displayed
                 View itemView = LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.layout_user, viewGroup, false);
                 return new UserViewHolder(itemView);
@@ -501,28 +349,23 @@ Log.d(TAG,"bla bla");
             this.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-           // Toast.makeText(getApplicationContext(), " Press Back again to Exit ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), " Press Back again to Exit ", Toast.LENGTH_SHORT).show();
 
         }
     }
 
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        Log.wtf("TAG","navigationlistener");
-
         switch (id){
             case R.id.add:
-                Log.wtf("add",""+id);
                 startActivity(new Intent(HomeActivity.this,CercleRequestActivity.class));
                 break;
             case R.id.find:
-                Log.wtf("find",""+id);
-
                 startActivity(new Intent(HomeActivity.this,AllUsersActivity.class));
-
                 break;
             case R.id.profile:
                 startActivity(new Intent(HomeActivity.this,Profile.class));
@@ -543,7 +386,6 @@ Log.d(TAG,"bla bla");
     private void configureToolBar(){
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("My circle");
-        //sets the toolbar as the app bar for the activity
         setSupportActionBar(toolbar);
     }
 

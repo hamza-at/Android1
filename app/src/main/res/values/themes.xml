@@ -23,10 +23,5 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.GeoSafe.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="Theme.GeoSafe.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-    <style name="RequestDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorPrimary">@android:color/black</item>
-    </style>
 </resources>

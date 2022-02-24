@@ -1,32 +1,27 @@
 package com.example.geosafe;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.NumberPicker;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.geosafe.direction.FetchURL;
 import com.example.geosafe.direction.TaskLoadedCallback;
 import com.example.geosafe.model.Localisation;
 import com.example.geosafe.utils.Tools;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,28 +30,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ValueEventListener, TaskLoadedCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -68,7 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
     Button getDirection;
-    double latitude, longitude;
     FusedLocationProviderClient mLocationClient;
     FloatingActionButton loca;
     private LocationManager locationManager;
@@ -85,46 +69,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getDirection = findViewById(R.id.btnGetDirection);
 
         checkLocationPermission();
-        getDirection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new FetchURL(MapsActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
-            }
-        });
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        getDirection.setOnClickListener(view -> new FetchURL(MapsActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition()), "driving"));
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        loca.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getLocation();
-            }
-        });
+        loca.setOnClickListener(v -> getLocation());
         mLocationClient = new FusedLocationProviderClient(this);
 
 
         if (Tools.UserTraced != null) recorderRealtime();
-
-
-        //Log.wtf("tracedUser",Tools.UserTraced.toString());
     }
 
     private void getLocation() {
 
         checkLocationPermission();
 
-        mLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    Location location = task.getResult();
-                    Log.wtf("location", "" + location);
-                    if (location != null)
-                        gotoLocation(location.getLatitude(), location.getLongitude());
-                }
+        mLocationClient.getLastLocation().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Location location = task.getResult();
+                Log.wtf("location", "" + location);
+                if (location != null)
+                    gotoLocation(location.getLatitude(), location.getLongitude());
             }
         });
 
@@ -157,45 +124,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //pour activer le zoom
+        //Activate zoom
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
         checkLocationPermission();
+        //click on the button to display logged user position
         mMap.setMyLocationEnabled(true);
 
-      //  location = FirebaseDatabase.getInstance().getReference(Tools.LOCATION).child(Tools.loggedUser.getUid());
-      /*  NumberFormat f = NumberFormat.getInstance(); // Gets a NumberFormat with the default locale, you can specify a Locale as first parameter (like Locale.FRENCH)
-        try {
-            double latitude = f.parse(location.child("latitude").toString()).doubleValue();
-            double longitude=f.parse(location.child("longitude").toString()).doubleValue();
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        LatLng position= new LatLng(latitude,longitude);
-*/
-    //set le skin de map
-boolean success= googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.maps_style));
-        // Add a marker in Sydney and move the camera
-      /*  LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(position).title("MOI").icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-       */ /*and these are the constants you can use
-
-float   HUE_AZURE
-float   HUE_BLUE
-float   HUE_CYAN
-float   HUE_GREEN
-float   HUE_MAGENTA
-float   HUE_ORANGE
-float   HUE_RED
-float   HUE_ROSE
-float   HUE_VIOLET
-float   HUE_YELLOW */
-      //  mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
-
-
-
+        //setting a map style
+       googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.maps_style));
     }
     private void recorderRealtime() {
         if(userTracedLocation==null){
@@ -209,11 +146,10 @@ float   HUE_YELLOW */
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
         if (snapshot.getValue() !=null)
-        {Log.wtf("snapshot",""+snapshot);
-            //List<Marker> markers = new ArrayList<Marker>();
-
-            Localisation location =snapshot.getValue(Localisation.class);
-            //marker
+        {
+            Log.wtf("snapshot",""+snapshot);
+         Localisation location =snapshot.getValue(Localisation.class);
+            // Add a marker
             assert location != null;
             LatLng userMarker = new LatLng(location.getLatitude(),location.getLongitude());
             if (null != marker) {
@@ -254,13 +190,14 @@ float   HUE_YELLOW */
         super.onStop();
 
     }
-    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+    //direction API
+    private String getUrl(LatLng origin, LatLng dest) {
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
         // Destination of route
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
         // Mode
-        String mode = "mode=" + directionMode;
+        String mode = "mode=" + "driving";
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + mode;
         // Output format
@@ -300,31 +237,27 @@ float   HUE_YELLOW */
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
+            // show an explanation
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
+                // Show an explanation to the user After the user
+                // sees the explanation, We try again to request the permission.
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.title_location_permission)
                         .setMessage(R.string.text_location_permission)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
+                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                            //Prompt the user once explanation has been shown
+                            ActivityCompat.requestPermissions(MapsActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    MY_PERMISSIONS_REQUEST_LOCATION);
                         })
                         .create()
                         .show();
 
 
             } else {
-                // No explanation needed, we can request the permission.
+                // Request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
@@ -337,7 +270,7 @@ float   HUE_YELLOW */
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
@@ -345,8 +278,7 @@ float   HUE_YELLOW */
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
+                    // permission was granted
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -357,8 +289,7 @@ float   HUE_YELLOW */
 
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // permission denied
 
                 }
                 return;

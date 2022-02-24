@@ -67,7 +67,6 @@ public class Profile extends AppCompatActivity {
     TextView name, email;
     ImageView image_profile;
     StorageReference storageReference;
-    private static final int IMAGE_REQUEST = 1;
     private Uri imageUri;
     private StorageTask uploadTask;
     FirebaseAuth mAuth;
@@ -75,8 +74,6 @@ public class Profile extends AppCompatActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    // There are no request codes
-                    // doSomeOperations();
                     Intent data = result.getData();
                     imageUri = Objects.requireNonNull(data).getData();
                     if (uploadTask != null && uploadTask.isInProgress()) {
@@ -84,15 +81,6 @@ public class Profile extends AppCompatActivity {
                     } else {
                         uploadImage();
                     }
-                   /* InputStream imageStream = null;
-                    try {
-                        imageStream = getContentResolver().openInputStream(selectedImage);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    BitmapFactory.decodeStream(imageStream);
-                    image_profile.setImageURI(selectedImage);// To display selected image in image view
-                    imageUri=*/
                 }
             });
 
@@ -117,7 +105,6 @@ public class Profile extends AppCompatActivity {
             model = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
             uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
         }
-        //String model=Tools.loggedUser.getEmail();
 
         assert model != null;
         int index = model.indexOf('@');
@@ -130,8 +117,8 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                     User user=snapshot.getValue(User.class);
-                        Log.wtf("user",user.getUid());
-                        Log.wtf("user",user.getAvatar());
+                        Log.wtf("userid",user.getUid());
+                        Log.wtf("userAvatar",user.getAvatar());
 
 
                         if(user.getAvatar().equals("default")){
@@ -151,7 +138,6 @@ public class Profile extends AppCompatActivity {
         });
 
         storageReference = FirebaseStorage.getInstance().getReference(Tools.PHOTOS);
-        //mAvatarImage = findViewById(R.id.image_choose_avatar);
         findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,7 +156,7 @@ public class Profile extends AppCompatActivity {
                                                    }
         );
 
-
+// Remove some users from circle
         findViewById(R.id.traced).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +164,7 @@ public class Profile extends AppCompatActivity {
 
             }
         });
+        //To sign out
         findViewById(R.id.out).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,6 +175,7 @@ public class Profile extends AppCompatActivity {
                 finish();
             }
         });
+        //to change avatar
         image_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,6 +185,7 @@ public class Profile extends AppCompatActivity {
 
     }
 
+    //open images repository locally
     private void openImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -213,9 +202,7 @@ public class Profile extends AppCompatActivity {
     }
 
     private void uploadImage() {
-           /* final ProgressDialog progressDialog=new ProgressDialog(getApplicationContext());
-            progressDialog.setMessage("Uploading");
-            progressDialog.show();*/
+
         progressBar = new ProgressBar(Profile.this, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.setProgressTintList(ColorStateList.valueOf(Color.RED));
 
@@ -226,6 +213,7 @@ public class Profile extends AppCompatActivity {
 
 
         if (imageUri != null) {
+            //set file extension to jpg
             final StorageReference fileReference = storageReference.child(System.currentTimeMillis() + "." + "jpg");
             fileReference.putFile(imageUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -257,46 +245,9 @@ public class Profile extends AppCompatActivity {
         }else{
             Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_SHORT).show();
         }
-           ///
-          /*  uploadTask = fileReference.putFile(imageUri);
-            try {
-                uploadTask.continueWith((Continuation<UploadTask.TaskSnapshot, Task<Uri>>) task -> {
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
-                    return fileReference.getDownloadUrl();
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Log.wtf("taskuri", "" + task.getResult());
-                            Uri downloadUri = task.getResult();
-                            String mUri = downloadUri.toString();
 
-                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION);
-                            Log.wtf("model", model);
-                            HashMap<String, Object> map = new HashMap<>();
-                            map.put("avatar", mUri);
-                            reference.child(model).setValue(map);
-                            progressBar.setVisibility(View.GONE);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Failed!", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-            }catch (Exception e){}
-            }else{
-                Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_SHORT).show();
-            }*/
 
-        }
+    }
 
         @Override
         public boolean onOptionsItemSelected (MenuItem item){

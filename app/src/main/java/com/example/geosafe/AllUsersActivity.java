@@ -2,34 +2,27 @@ package com.example.geosafe;
 
 import static android.graphics.Color.RED;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.geosafe.Interface.IFirebaseLoadDone;
 import com.example.geosafe.Interface.IRecycleItemClickListener;
@@ -41,7 +34,6 @@ import com.example.geosafe.utils.Tools;
 import com.example.geosafe.viewHolder.UserViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.common.internal.service.Common;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -51,16 +43,12 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
@@ -86,9 +74,7 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
         getSupportActionBar().setBackgroundDrawable(
                 new ColorDrawable(Color.parseColor("#E02947")));
 
-        //initialiser API
         ifcmService = Tools.getFCMService();
-        //Initilialser the view
         searchBar = (MaterialSearchBar) findViewById(R.id.material_search_bar);
         searchBar.setCardViewElevation(10);
         searchBar.addTextChangeListener(new TextWatcher() {
@@ -117,7 +103,6 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
             public void onSearchStateChanged(boolean enabled) {
                 if (!enabled) {
                     if (adapter != null) {
-                        //if close search restore default
                         recycler_all_user.setAdapter(adapter);
                     }
                 }
@@ -137,9 +122,9 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
         });
         recycler_all_user = (RecyclerView) findViewById(R.id.recycler_all_users);
         recycler_all_user.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recycler_all_user.setLayoutManager(layoutManager);
-        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, ((LinearLayoutManager) layoutManager).getOrientation()));
+        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
 
         firebaseLoadDone = this;
         loadUserList();
@@ -149,9 +134,7 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                //NavUtils.navigateUpFromSameTask(this);
                 Intent aboutIntent = new Intent(AllUsersActivity.this,HomeActivity.class);
                 startActivity(aboutIntent);
                 finish();
@@ -159,7 +142,7 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
         }
         return super.onOptionsItemSelected(item);
     }
-// kat3mr suggestion list bles users
+// add users suggestion list
     private void loadSearchData() {
         List<String> lstUserEmail = new ArrayList<>();
         DatabaseReference userList = FirebaseDatabase.getInstance()
@@ -169,6 +152,7 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot userSnapShot : snapshot.getChildren()) {
                     User user = userSnapShot.getValue(User.class);
+                    assert user != null;
                     lstUserEmail.add(user.getEmail());
                 }
                 firebaseLoadDone.onFirebaseLoadUserNameDone(lstUserEmail);
@@ -183,11 +167,9 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
 
     private void loadUserList() {
         Query query = FirebaseDatabase.getInstance().getReference().child(Tools.USER_INFORMATION);
-       // It is a class provide by the FirebaseUI to make query in the database to fetch appropriate data
         FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
-        //passer l'objet au adapter
         adapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User model) {
@@ -205,16 +187,13 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
                     holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
                 }
                 //Event
-                holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                    @Override
-                    public void onItemClickListener(View view, int position) {
-                        if(Tools.loggedUser.getEmail().equals(model.getEmail())){
-                            Snackbar.make(view, "     That's you!!", Snackbar.LENGTH_LONG)
-                                    .setBackgroundTint(RED)
-                                    .setAction("Alert", null).show();
-                        }else{
-                            showDialogRequest(model);
-                        }
+                holder.setiRecycleItemClickListener((view, position1) -> {
+                    if(Tools.loggedUser.getEmail().equals(model.getEmail())){
+                        Snackbar.make(view, "     That's you!!", Snackbar.LENGTH_LONG)
+                                .setBackgroundTint(RED)
+                                .setAction("Alert", null).show();
+                    }else{
+                        showDialogRequest(model);
                     }
                 });
             }
@@ -227,11 +206,8 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
                 return new UserViewHolder(itemView);
             }
         };
-        // this ligne is important to avoid blank in load user
         adapter.startListening();
         recycler_all_user.setAdapter(adapter);
-
-
     }
 
     private void showDialogRequest(User model) {
@@ -239,37 +215,8 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
         alertDialog.setTitle("Request Friend");
         alertDialog.setMessage("Do you want to sent request friend to " + model.getEmail());
         alertDialog.setIcon(R.drawable.ic_account);
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        alertDialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // on lajoute a la liste des acceptes
-               /* DatabaseReference acceptlist = FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION)
-                        .child(Tools.loggedUsed.getUid())
-                        .child(Tools.ACCEPTLIST);
-                acceptlist.orderByKey().equalTo(model.getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.getValue() == null)
-                                    sendCircleRequest(model);
-                                else
-                                    Toast.makeText(AllUsersActivity.this, model.getEmail() + " is on your circleSafe", Toast.LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });*/
-                sendCircleRequest(model);
-            }
-        });
+        alertDialog.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        alertDialog.setPositiveButton("Send", (dialog, which) -> sendCircleRequest(model));
         alertDialog.show();
     }
 
@@ -293,22 +240,14 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
 
                             request.setData(data);
                             Log.wtf("request---------------------------------", "" + request.toString());
-                            //envoyer
+                            //send request
                            compositeDisposable.add(ifcmService.sendFriendRequestToUser(request).subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<MyResponse>() {
-                                        @Override
-                                        public void accept(MyResponse myResponse) throws Exception {
-                                            Log.d("request_response",myResponse.toString());
-                                            if (myResponse.success == 1)
-                                                Toast.makeText(AllUsersActivity.this, "Request sent", Toast.LENGTH_SHORT).show();
+                                    .observeOn(AndroidSchedulers.mainThread()).subscribe(myResponse -> {
+                                        Log.d("request_response",myResponse.toString());
+                                        if (myResponse.success == 1)
+                                            Toast.makeText(AllUsersActivity.this, "Request sent", Toast.LENGTH_SHORT).show();
 
-                                        }
-                                    }, new Consumer<Throwable>() {
-                                        @Override
-                                        public void accept(Throwable throwable) throws Exception {
-                                            Toast.makeText(AllUsersActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }));
+                                    }, throwable -> Toast.makeText(AllUsersActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show()));
 
 
                         }
@@ -364,32 +303,25 @@ public class AllUsersActivity extends AppCompatActivity implements IFirebaseLoad
                     holder.txt_user_name.setText(new StringBuilder(name));
                     holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
                 }
-                //Event
-                holder.setiRecycleItemClickListener(new IRecycleItemClickListener() {
-                    @Override
-                    public void onItemClickListener(View view, int position) {
-                        if(Tools.loggedUser.getEmail().equals(model.getEmail())){
-                            Snackbar.make(view, "     That's you!!", Snackbar.LENGTH_LONG)
-                                    .setBackgroundTint(RED)
-                                    .setAction("Alert", null).show();
-                        }else{
-                            showDialogRequest(model);
-                        }
+                holder.setiRecycleItemClickListener((view, position1) -> {
+                    if(Tools.loggedUser.getEmail().equals(model.getEmail())){
+                        Snackbar.make(view, "     That's you!!", Snackbar.LENGTH_LONG)
+                                .setBackgroundTint(RED)
+                                .setAction("Alert", null).show();
+                    }else{
+                        showDialogRequest(model);
                     }
-
                 });
             }
 
             @NonNull
             @Override
             public UserViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-                //pour passer declarer a la classe le layout ou les donnees will be displayed
                 View itemView = LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.layout_user, viewGroup, false);
                 return new UserViewHolder(itemView);
             }
         };
-        // this ligne is important to avoid blank in load user
         searchAdapter.startListening();
         recycler_all_user.setAdapter(searchAdapter);
     }

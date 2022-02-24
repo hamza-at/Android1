@@ -1,13 +1,5 @@
 package com.example.geosafe;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,16 +7,19 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.geosafe.model.User;
 import com.example.geosafe.utils.Tools;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.common.internal.service.Common;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,22 +28,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceIdReceiver;
-import com.google.firebase.iid.internal.FirebaseInstanceIdInternal;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
-//////
 
-///
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import io.paperdb.Paper;
 
@@ -61,12 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
-            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
-                @Override
-                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                    onSignInResult(result);
-                }
-            }
+            this::onSignInResult
     );
 
     @Override
@@ -142,11 +120,10 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                 );
-// ...
 
-// Before you perform the actual permission request, check whether your app
-// already has the permissions, and whether your app needs to show a permission
-// rationale dialog. For more details, see Request permissions.
+// Before the actual permission request, we need to check whether the app
+// already has the permissions, and whether it needs to show a permission
+
         locationPermissionRequest.launch(new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -164,11 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // [START auth_fui_result]
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        Log.d(TAG, "dkhel onSignInResult");
         if (result.getResultCode() == RESULT_OK) {
-            Log.wtf("boucle if", "onsignin");
             txt=(TextView)findViewById(R.id.txt);
             txt.setText(R.string.Bienvenu);
             txt.setText(R.string.Redirection);
@@ -176,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             Log.wtf("firebaseuser",""+firebaseUser);
             Log.wtf("userinfofromrealtime",""+userInfo);
-            //check if user exists
+            //user exists?
             assert firebaseUser != null;
             userInfo.orderByKey().equalTo(firebaseUser.getUid())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -184,20 +158,15 @@ public class MainActivity extends AppCompatActivity {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             Log.wtf("snapshot", "" + snapshot);
 
-                            if (snapshot.getValue() == null) //user doesnt exist
-                            {  if (!snapshot.child(firebaseUser.getUid()).exists()) //If key uid is not exist
+                            if (snapshot.getValue() == null)
+                            {  if (!snapshot.child(firebaseUser.getUid()).exists())
                               {
-                                Log.wtf("onDataChange", "jjjjj");
+                                Log.wtf("onDataChange", "key uid doesn't exist+add to BD");
                                 Tools.loggedUser = new User(firebaseUser.getUid(), firebaseUser.getEmail());
-                                //add to BD
                                 userInfo.child(Tools.loggedUser.getUid()).setValue(Tools.loggedUser);
                               }
                             } else {
-                                // Sign in failed. If response is null the user canceled the
-                                // sign-in flow using the back button. Otherwise check
-                                // response.getError().getErrorCode() and handle the error.
-                                // ...
-                                //user available
+                                Log.wtf("onDataChange", "user available");
                                 Tools.loggedUser = snapshot.child(firebaseUser.getUid()).getValue(User.class);
                             }
 
@@ -205,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     Paper.book().write(Tools.SAVED_USER_UID,Tools.loggedUser.getUid());
 
                        updateToken(firebaseUser);
-                          Log.d(TAG, "wsl launcher dyal Home activity");
+                          Log.d(TAG, "pass user uid to the next activity+launch the activity");
                             LaunchAct(firebaseUser);
                         }
 
@@ -218,70 +187,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-   /* private void showSignInOptions() {
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder().setAvailableProviders(providers)
-                        .build(),Requete);
-    }
-    //
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==Requete)
-        {
-            IdpResponse response=IdpResponse.fromResultIntent(data);
-            if(resultCode==RESULT_OK)
-            {
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                //check if user exists
-                userInfo.orderByKey()
-                        .equalTo(Objects.requireNonNull(firebaseUser).getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.getValue() == null) //user doesnt exist
-                                {
-                                    Commun.loggedUser = new User(firebaseUser.getUid(), firebaseUser.getEmail());
-                                    //add to BD
-                                    userInfo.child(Commun.loggedUser.getUid()).setValue(Commun.loggedUser);
-                                } else {
-                                    //user available
-                                    Commun.loggedUser = snapshot.child(firebaseUser.getUid()).getValue(User.class);
-                                }
-                                //save uid to storage to update location from background
-                                Paper.book().write(Commun.USER_UID_SAVE_KEY,Commun.loggedUser.getUid());
-                                updateToken(firebaseUser);
-                                setupUI();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-            }
-        }
-    }*/
-
-
     private void updateToken(FirebaseUser firebaseUser) {
-        Log.d(TAG, "fucking shitt222222");
+        Log.d(TAG, "updating Token in progress");
         final DatabaseReference tokens = FirebaseDatabase.getInstance()
                 .getReference(Tools.TOKENS);
 
         //Get Token
         FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        tokens.child(firebaseUser.getUid())
-                                .setValue(task.getResult());    //->Error
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+                .addOnCompleteListener(task -> tokens.child(firebaseUser.getUid())
+                        .setValue(task.getResult())).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(MainActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();

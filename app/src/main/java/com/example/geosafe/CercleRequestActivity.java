@@ -87,7 +87,6 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
             public void onSearchStateChanged(boolean enabled) {
                 if (!enabled) {
                     if (adapter != null) {
-                        //if close search restore default
                         recycler_all_user.setAdapter(adapter);
                     }
                 }
@@ -107,9 +106,9 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
         });
         recycler_all_user = (RecyclerView) findViewById(R.id.recycler_all_users);
         recycler_all_user.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recycler_all_user.setLayoutManager(layoutManager);
-        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, ((LinearLayoutManager) layoutManager).getOrientation()));
+        recycler_all_user.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
 
 
         firebaseLoadDone = this;
@@ -127,9 +126,7 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                //NavUtils.navigateUpFromSameTask(this);
                 Intent aboutIntent = new Intent(CercleRequestActivity.this,HomeActivity.class);
                 startActivity(aboutIntent);
                 finish();
@@ -164,24 +161,13 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
                 String name = model.getEmail().substring(0, index);
                 holder.txt_user_name.setText(new StringBuilder(name));
                 holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
-                holder.accept_bt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //false et true bach n3rfu 3layach brek user
-                        deleteRequest(model, false);
-                        AcceptList(model);
-                        //  addUserToContact(model);
-                    }
-
+                holder.accept_bt.setOnClickListener(v -> {
+                    //false means user accepted the request and then displaying a Toast accordingly
+                    deleteRequest(model, false);
+                    AcceptList(model);
 
                 });
-                holder.decline_bt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        deleteRequest(model, true);
-
-                    }
-                });
+                holder.decline_bt.setOnClickListener(v -> deleteRequest(model, true));
 
 
             }
@@ -191,7 +177,7 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
         recycler_all_user.setAdapter(searchAdapter);
     }
 
-    // load tous les utilisateur dans la barre de suggestion
+    // add users in suggestion bar
     private void loadSearchData() {
         final List<String> lstUserEmail=new ArrayList<>();
         DatabaseReference userList=FirebaseDatabase.getInstance().getReference().child(Tools.USER_INFORMATION)
@@ -203,6 +189,7 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
                 for (DataSnapshot userSnapShot:dataSnapshot.getChildren())
                 {
                     User user=userSnapShot.getValue(User.class);
+                    assert user != null;
                     if(!user.equals(Tools.loggedUser))
                     lstUserEmail.add(user.getEmail());
                 }
@@ -222,7 +209,6 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
         Query query = FirebaseDatabase.getInstance().getReference().child(Tools.USER_INFORMATION)
                 .child(Tools.loggedUser.getUid())
                 .child(Tools.CERCLE_REQUEST);
-        // It is a class provide by the FirebaseUI to make query in the database to fetch appropriate data
         FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
@@ -233,24 +219,11 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
                 String name = model.getEmail().substring(0,index);
                 holder.txt_user_name.setText(new StringBuilder(name));
                 holder.txt_user_email.setText(new StringBuilder(model.getEmail()));
-                holder.accept_bt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //false et true bach n3rfu 3layach brek user
-                        deleteRequest(model, false);
-                        AcceptList(model);
-                      //  addUserToContact(model);
-                    }
-
-
+                holder.accept_bt.setOnClickListener(v -> {
+                    deleteRequest(model, false);
+                    AcceptList(model);
                 });
-                holder.decline_bt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        deleteRequest(model, true);
-
-                    }
-                });
+                holder.decline_bt.setOnClickListener(v -> deleteRequest(model, true));
             }
 
             @NonNull
@@ -267,11 +240,6 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
 
             }
 
-    /* pas logique pk ecrire list des accepte pour celui qu'on vient d'accepter
-    private void addUserToContact(User model) {
-        DatabaseReference list=FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(model.getUid()).child(Tools.ACCEPTLIST);
-        list.child(Tools.loggedUser.getUid()).setValue(Tools.loggedUser);
-    }*/
 
     private void AcceptList(User model) {
         DatabaseReference list=FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid()).child(Tools.ACCEPTLIST);
@@ -282,11 +250,12 @@ public class CercleRequestActivity extends AppCompatActivity implements IFirebas
     private void deleteRequest(final User model,final boolean b) {
         DatabaseReference request= FirebaseDatabase.getInstance().getReference(Tools.USER_INFORMATION).child(Tools.loggedUser.getUid()).child(Tools.CERCLE_REQUEST);
 
-        request.child(model.getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-           if(b)
-               Toast.makeText(CercleRequestActivity.this, "Remove", Toast.LENGTH_SHORT).show();
+        request.child(model.getUid()).removeValue().addOnSuccessListener(unused -> {
+            if (b) {
+                Toast.makeText(CercleRequestActivity.this, "Remove user from requests definitely", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(CercleRequestActivity.this, "Remove user from requests and add h(er)im to your circle", Toast.LENGTH_SHORT).show();
+
             }
         });
     }
