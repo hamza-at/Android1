@@ -23,10 +23,10 @@ Project is created with:
 
 	
 ## ScreenshotsUI
-```
 
 
 ![login](https://user-images.githubusercontent.com/85027825/158086286-a4fc66c5-6124-41d3-8ad6-a860efa94143.jpg)
+
 <img width="190" alt="Geosafe2" src="https://user-images.githubusercontent.com/85027825/158086293-46e41f93-0a87-48d6-bef8-f211920d0d9f.PNG">
 <img width="201" alt="Geosafe6" src="https://user-images.githubusercontent.com/85027825/158086298-f9495bb4-04cf-4ad9-8f3e-471c47b5cee9.PNG">
 <img width="208" alt="Geosafe7" src="https://user-images.githubusercontent.com/85027825/158086321-d6cc6907-61ae-4a07-b282-b8dac7314e1b.PNG">
