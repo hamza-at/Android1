@@ -36,3 +36,13 @@ Project is created with:
 
 <img width="195" alt="Geosafe" src="https://user-images.githubusercontent.com/85027825/158086352-d61abe2a-9ce0-48c8-add2-de76f2a87166.PNG">
 <img width="213" alt="Geosafe5" src="https://user-images.githubusercontent.com/85027825/158086358-29f8e4df-9f23-4896-b13b-e21c48e83762.PNG">
+
+<img width="206" alt="Geosafe10" src="https://user-images.githubusercontent.com/85027825/158273565-da63a42e-5105-482a-a696-372d0dc33380.PNG">
+<img width="216" alt="Geosafe11" src="https://user-images.githubusercontent.com/85027825/158273601-9c840e48-7989-4a22-a98c-32829fcf0e27.PNG">
+<img width="209" alt="Geosafe12" src="https://user-images.githubusercontent.com/85027825/158273766-a3d9f468-ee47-4465-844b-6f448f5ff588.PNG">
+<img width="212" alt="Geosafe13" src="https://user-images.githubusercontent.com/85027825/158273809-8c53f261-028a-465b-8f52-229bb9d59b2e.PNG">
+<img width="206" alt="Geosafe14" src="https://user-images.githubusercontent.com/85027825/158273685-5b667b45-8b79-4ff5-b1c2-276400b0238a.PNG">
+<img width="210" alt="Geosafe15" src="https://user-images.githubusercontent.com/85027825/158273696-703c05cb-cf26-4a04-8f3a-763df0f7847a.PNG">
+<img width="204" alt="Geosafe16" src="https://user-images.githubusercontent.com/85027825/158273706-2ec7a36e-4076-43e7-b84c-89fd5da80585.PNG">
+
+
